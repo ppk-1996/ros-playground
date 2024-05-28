@@ -1,0 +1,28 @@
+<launch>
+    <!-- Load the Gazebo empty world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="false" />
+        <arg name="use_sim_time" value="true" />
+        <arg name="gui" value="true" />
+        <arg name="headless" value="false" />
+        <arg name="debug" value="false" />
+    </include>
+
+    <!-- Load the robot description parameter -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find robot_model)/urdf/robot.xacro'" />
+
+    <!-- Start robot state publisher -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- Spawn the robot in Gazebo -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model robot_model -param robot_description" />
+
+    <!-- Teleoperation node for keyboard control -->
+    <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen">
+        <param name="scale_linear" value="0.5" />
+        <param name="scale_angular" value="1.0" />
+        <remap from="cmd_vel" to="/cmd_vel" />
+    </node>
+
+</launch>
